@@ -23,7 +23,7 @@ jwt = JWTManager(app)  # Initialize JWT
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # MongoDB Atlas connection
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://nicholas:Nicko22462@cluster0.vqj30.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+MONGO_URI = os.getenv("MONGO_URI", [MONGODB_CONNECTION_STRING])
 client = MongoClient(MONGO_URI)
 db = client["pregnancy"]
 messages_collection = db["messages"]
