@@ -5,6 +5,7 @@ import './Signup.css';
 
 const DoctorSignupModal = ({ show, onClose }) => {
   const [doctorData, setDoctorData] = useState({
+    username: '',
     email: '',
     password: '',
     phone: '',
@@ -62,6 +63,10 @@ const DoctorSignupModal = ({ show, onClose }) => {
                 </div>
                 <div className="modal-body">
                   <form onSubmit={handleDoctorSignup}>
+                  <div className="mb-3">
+                      <input type="text" className="form-control" name="username"
+                        value={doctorData.username} onChange={handleChange} required placeholder="Username" />
+                    </div>
                     <div className="mb-3">
                       <input type="email" className="form-control" name="email"
                         value={doctorData.email} onChange={handleChange} required placeholder="Email" />

@@ -435,13 +435,14 @@ def get_user_data():
 @app.route('/doctor/signup', methods=['POST'])
 def doctor_signup():
     data = request.json
+    username = data.get('username')
     email = data.get('email')
     password = data.get('password')
     phone = data.get('phone')
     specialization = data.get('specialization')
     license_number = data.get('licenseNumber')
 
-    if not email or not password or not phone or not specialization or not license_number:
+    if not email or not password or not phone or not specialization or not license_number or not username:
         return jsonify({"error": "All fields are required"}), 400
 
     if doctors_collection.find_one({"email": email}):
@@ -450,6 +451,7 @@ def doctor_signup():
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     doctor_data = {
+        "username": username,
         "email": email,
         "password": hashed_password,
         "phone": phone,
