@@ -8,7 +8,6 @@ import axios from 'axios';
 const NavPanel = () => {
   const [doctor, setDoctor] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -68,7 +67,7 @@ const NavPanel = () => {
   return (
     <>
       <ToastContainer />
-      <nav className="navbar navbar-expand-lg py-3 bg-primary" style={{ position:'fixed', top:0, width:'100%' }}>
+      <nav className="navbar navbar-expand-lg py-3 bg-primary" style={{ position:'fixed', top:0, width:'100%', zIndex:10000 }}>
         <div className="container-fluid">
           {/* Navbar Toggler for Mobile */}
           <button

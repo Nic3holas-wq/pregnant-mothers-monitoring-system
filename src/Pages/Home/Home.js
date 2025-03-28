@@ -9,14 +9,32 @@ const Home = () => {
   const [user, setUser] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const navigate = useNavigate();
-
+  const [newMessages, setNewMessages] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState([])
   // Fetch user from local storage
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem("user"));
+    const unread = Number(localStorage.getItem("newMessages")) || 0;
+    console.log("Unread:", unread)
     if (currentUser) {
       setUser(currentUser);
+      setNewMessages(unread)
     }
   }, []);
+
+  useEffect(() => {
+    const unread = Number(localStorage.getItem("newMessages")) || 0;
+    const unreadMessages = JSON.parse(localStorage.getItem("unreadMessages")) || [];
+    setUnreadMessages(unreadMessages)
+    console.log("Unread Messages:", unreadMessages);
+    console.log("Unread Count:", unread);
+  
+    // Update state only if the unread count is different
+    if (unread !== newMessages) {
+      setNewMessages(unread);
+    }
+  }, []); // Run only on mount
+  
 
   // Fetch appointments only when user is available
   useEffect(() => {
@@ -55,20 +73,49 @@ const Home = () => {
     }
   };
 
+  // Emergency contact
+  const handleEmergencyCall = async () => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("user"));
+      if (!currentUser || !currentUser.email) {
+        alert("User not found! Please log in.");
+        return;
+      }
+  
+      const response = await fetch("http://10.42.0.1:5000/emergency-alert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: currentUser.email, timestamp: new Date() }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        alert("Emergency alert sent successfully!");
+        toast.success("Emergency alert sent successfully!");
+      } else {
+        alert(`Error: ${data.error}`);
+        toast.error("Failed to send emergency alert. Please try again")
+      }
+    } catch (error) {
+      console.error("Error sending emergency alert:", error);
+      alert("Failed to send emergency alert.");
+    }
+  };
+  
   return (
     <div>
       <Navigation />
       <ToastContainer />
 
       <div
-      style={{
-        backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/background.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed", // This keeps the background fixed
-        minHeight: "100vh",
-        marginTop: "100px",
-      }}
+        style={{
+          backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/background.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment:"fixed", // Fix for mobile scrolling
+          minHeight: "100vh",
+          marginTop: "100px",
+        }}
       >
         <div className="container d-flex justify-content-center flex-wrap gap-3 pt-4" >
 
@@ -107,12 +154,36 @@ const Home = () => {
     </ul>
   )}
 </div>
+{/* Emergency Action */}
+<div
+  className="card p-3 bg-danger text-white text-center d-flex justify-content-center align-items-center"
+  style={{ cursor: "pointer" }}
+  onClick={handleEmergencyCall}
+>
+  <h3>Emergency Call!</h3>
+  <p className="h5">Press Here To Connect to any Available doctor</p>
+</div>
 
 
 {/* Messages from Doctor */}
 <div className="card p-3 mb-3">
   <h4>Messages from Your Doctor</h4>
+
+  {newMessages > 0 ? (
+  <>
+    <p className="text-success h4">{newMessages} new messages.</p>
+    {unreadMessages.map((msg, index) => (
+      <div key={index} className="bg-primary rounded text-white mb-2 p-1">
+        <small className="h6">{msg.message}</small>
+        <small className="ms-4 text-muted">From: {msg.sender}</small>
+      </div>
+    ))}
+  </>
+) : (
   <p className="text-muted">You have no new messages.</p>
+)}
+
+ 
   <Link to="/chat" className="btn btn-secondary">View Messages</Link>
 </div>
 
@@ -130,7 +201,7 @@ const Home = () => {
 </div>
 
 <div className="card p-3 mb-3 text-center">
-  <p className="h4">Did you know?</p>
+  <p className="h4">Did you know that</p>
   <p>Marijuana has 500 different chemicals that can pass through the placenta and affect baby?</p>
   <p>The unborn baby can suck their thumb (you might even get to see this on screen during the 20-week anatomy scan). </p>
 </div>

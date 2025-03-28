@@ -103,7 +103,7 @@ const Chat = () => {
   return (
     <div>
       <Navigation />
-      <div className="container" style={{ marginTop: "80px" }}>
+      <div className="container" style={{ marginTop: "60px" }}>
         <div className="row">
           {/* Doctors List Panel */}
           <div className={`col-md-4 ${selectedDoctor ? "d-none d-md-block" : "d-block"}`}>
@@ -127,6 +127,7 @@ const Chat = () => {
                               width={40}
                               height={40}
                             />
+                            
                             <div className="d-flex flex-column">
                               <strong>{doctor.sender}</strong>
                               <small className="text-muted fs-6">
@@ -163,9 +164,10 @@ const Chat = () => {
                               </div>
 
                               <div className="d-flex flex-column ms-3">
-                                <strong>{doctor.email}</strong>
-                                <small>{doctor.phone}</small>
-                                <small className="text-muted">Start a conversation</small>
+                                <strong>{doctor.username}</strong>
+                                <small className="text-muted">{doctor.phone}</small>
+                                <small className="text-muted">{doctor.email}</small>
+                                <small className="text-secondary">Start a conversation</small>
                               </div>
                             </div>
                           </li>
@@ -188,8 +190,10 @@ const Chat = () => {
                             height={40}
                           />
                           <div className="d-flex flex-column">
-                            <strong>{doctor.email}</strong>
-                            <small className="text-muted">Start a conversation</small>
+                                <strong>{doctor.username}</strong>
+                                <small className="text-muted">{doctor.phone}</small>
+                                <small className="text-muted">{doctor.email}</small>
+                                <small className="text-secondary">Start a conversation</small>
                           </div>
                         </div>
                       </li>
@@ -250,7 +254,7 @@ const Chat = () => {
               )}
 
               {selectedDoctor && (
-                <div className="container mt-3 d-flex w-75 position-sticky" style={{ bottom: 0, zIndex: 1000 }}>
+                <div className="container mt-3 d-flex w-100 position-sticky" style={{ bottom: 30, zIndex: 1000 }}>
                   <input
                     type="text"
                     className="form-control"

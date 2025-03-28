@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import NavPanel from '../../../Components/Doctor/NavPanel/NavPanel';
+import io from "socket.io-client";
 
+const socket = io("http://10.42.0.1:5000"); // Connect to Flask backend
 const Dashboard = () => {
   const [doctor, setDoctor] = useState(null);
   const [stats, setStats] = useState({ totalPatients: 0, totalAppointments: 0, pendingRequests: 0, totalMessages: 0 });
   const [recentPatients, setRecentPatients] = useState([]);
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
-
+  const [alerts, setAlerts] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +21,30 @@ const Dashboard = () => {
       fetchDashboardData(parsedDoctor.email);
     }
   }, []);
+
+    useEffect(() => {
+      // Fetch existing alerts when the component mounts
+      const fetchAlerts = async () => {
+        try {
+          const response = await fetch("http://10.42.0.1:5000/emergency-alerts");
+          const data = await response.json();
+          setAlerts(data);
+        } catch (error) {
+          console.error("Error fetching emergency alerts:", error);
+        }
+      };
+  
+      fetchAlerts();
+  
+      // Listen for real-time emergency alerts
+      socket.on("new_alert", (alert) => {
+        setAlerts((prevAlerts) => [alert, ...prevAlerts]); // Prepend new alert
+      });
+  
+      return () => {
+        socket.off("new_alert"); // Clean up socket listener
+      };
+    }, []);
 
   const fetchDashboardData = async (doctorEmail) => {
     try {
@@ -68,9 +94,25 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="col-md-3">
-            <div className="card bg-danger text-white text-center p-3">
+            <div className="card bg-secondary text-white text-center p-3">
               <h5>Total Messages</h5>
               <h3>{stats.totalMessages}</h3>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card bg-danger text-white text-center p-3">
+              <h4>Emergency Alert!!!</h4>
+              {alerts.length > 0 ? (
+        alerts.map((alert, index) => (
+          <div key={index} className="alert alert-danger">
+            <p><strong>Emergency Alert!</strong></p>
+            <p>Email: {alert.email}</p>
+            <p>Time: {new Date(alert.timestamp).toLocaleString()}</p>
+          </div>
+        ))
+      ) : (
+        <p>No emergency alerts.</p>
+      )}
             </div>
           </div>
         </div>

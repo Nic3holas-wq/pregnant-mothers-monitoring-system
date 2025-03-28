@@ -8,6 +8,8 @@ import os
 from flask_jwt_extended import create_access_token, JWTManager
 from bson.objectid import ObjectId
 import pytz
+from bson.json_util import dumps
+
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -28,6 +30,8 @@ messages_collection = db["messages"]
 users_collection = db["users"]  # Store both mothers and users
 doctors_collection = db["doctors"]
 appointments_collection = db["appointments"]
+emergency_alert = db["emergency_alerts"]
+
 
 @app.route("/api/doctors", methods=["GET"])
 def get_doctors():
@@ -37,9 +41,6 @@ def get_doctors():
         return jsonify({"message": "No doctors found"}), 404  # Return 404 if no doctors exist
 
     return jsonify(doctors)
-
-
-
 
 # 📌 Save Appointment
 @app.route("/api/appointments", methods=["POST"])
@@ -370,6 +371,22 @@ def mark_messages_as_seen():
     return jsonify({"success": True, "message": f"{result.modified_count} messages marked as seen"}), 200
 
 
+@app.route("/messages/unread", methods=["GET"])
+def get_unread_messages():
+    try:
+        email = request.args.get("email")
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+        
+        unread_count = messages_collection.count_documents({"receiver": email, "seen": False})  # Count unseen messages
+        messages = list(messages_collection.find({"receiver": email, "seen": False}, {"_id": 0}))  # Fetch unseen messages
+        
+        return jsonify({"count": unread_count, "messages": messages})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
+    
 # 🔹 Signup (Mother or General User)
 @app.route('/api/signup', methods=['POST'])
 def register():
@@ -458,7 +475,7 @@ def doctor_signup():
         "specialization": specialization,
         "licenseNumber": license_number,
         "role": "doctor",
-        "created_at": datetime.datetime.utcnow()
+        "created_at": format_datetime()
     }
 
     doctors_collection.insert_one(doctor_data)
@@ -512,6 +529,43 @@ def update_status():
     else:
         return jsonify({"error": "Doctor not found or status unchanged"}), 404
 
+
+# Emergency Alert Endpoint
+@app.route("/emergency-alert", methods=["POST"])
+def emergency_alert_endpoint():  # Renamed to avoid conflict
+    try:
+        data = request.json
+        email = data.get("email")
+        timestamp = data.get("timestamp") or format_datetime()  # Use server-side timestamp if not provided
+
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+
+        alert = {
+            "email": email,
+            "timestamp": timestamp,
+            "status": "pending"
+        }
+
+        # Save the alert to the database
+        emergency_alert.insert_one(alert)
+
+        # Broadcast the alert to doctors in real-time
+        socketio.emit("new_alert", {"email": email, "timestamp": timestamp})
+
+        return jsonify({"message": "Emergency alert sent successfully!"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# Fetch all emergency alerts (For debugging)
+@app.route("/emergency-alerts", methods=["GET"])
+def get_emergency_alerts():
+    try:
+        alerts = list(emergency_alert.find({}, {"_id": 0}))
+        return dumps(alerts)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 # Run the Flask app
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=5000)
