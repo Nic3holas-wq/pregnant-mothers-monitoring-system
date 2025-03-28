@@ -250,35 +250,46 @@ def get_symptoms():
 def determine_health_status(health_record):
     """Determine health status based on vital signs"""
     try:
-        blood_pressure = health_record.get("blood_pressure", "0/0")
-        systolic, diastolic = map(int, blood_pressure.split("/"))
-        heart_rate = int(health_record.get("heart_rate", 0))
-        temperature = float(health_record.get("temperature", 0))
-        glucose_level = float(health_record.get("glucose_level", 0))
-        
-        # Default is green ✅
-        status = "green"
+        blood_pressure = health_record.get("Blood Pressure", "0/0")  
 
-        # 🚨 Red (Immediate attention needed)
-        if systolic > 180 or diastolic > 120:
-            status = "red"
-        elif heart_rate < 50 or heart_rate > 120:
-            status = "red"
-        elif temperature < 35 or temperature > 39:
-            status = "red"
-        elif glucose_level > 180 or glucose_level < 70:
-            status = "red"
+        # Handle cases where BP is not in "systolic/diastolic" format
+        if "/" in blood_pressure:
+            systolic, diastolic = map(int, blood_pressure.split("/"))
+        else:
+            systolic = int(blood_pressure)  # If only systolic is given
+            diastolic = 80  # Assume a normal diastolic value
+
+        # Convert other values safely
+        heart_rate = int(health_record.get("Heart Rate", "0"))
+        temperature = float(health_record.get("Temperature", "0"))
+        glucose_level = float(health_record.get("Glucose Level", "0"))
+
+        # Default is green ✅
+        status = "Best"
 
         # ⚠️ Yellow (Warning, needs monitoring)
-        elif 140 <= systolic <= 180 or 90 <= diastolic <= 120:
-            status = "yellow"
-        elif 50 <= heart_rate < 60 or 100 < heart_rate <= 120:
-            status = "yellow"
-        elif 37.5 <= temperature <= 39:
-            status = "yellow"
-        elif 140 <= glucose_level <= 180:
-            status = "yellow"
+        if 37.5 <= temperature <= 39:
+            status = "Good"
 
+        # 🚨 Red (Immediate attention needed)
+        elif systolic > 180 or diastolic > 120:
+            status = "Bad"
+        elif heart_rate < 50 or heart_rate > 120:
+            status = "Bad"
+        elif temperature < 35 or temperature > 39:
+            status = "Bad"
+        elif glucose_level > 180 or glucose_level < 70:
+            status = "Bad"
+
+        # More yellow conditions
+        elif 140 <= systolic <= 180 or 90 <= diastolic <= 120:
+            status = "Good"
+        elif 50 <= heart_rate < 60 or 100 < heart_rate <= 120:
+            status = "Good"
+        elif 140 <= glucose_level <= 180:
+            status = "Good"
+
+        print(f"Vitals -> BP: {systolic}/{diastolic}, HR: {heart_rate}, Temp: {temperature}, Glucose: {glucose_level}, Status: {status}")
         return status
 
     except Exception as e:
@@ -286,6 +297,17 @@ def determine_health_status(health_record):
         return "unknown"
 
 
+
+@app.route("/health-status", methods=["POST"])
+def health_status():
+    try:
+        data = request.json
+        print(data)
+        status = determine_health_status(data)
+        return jsonify({"status": status})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 # Handle user connection
 @socketio.on('join_room')
 def handle_connect(data):
@@ -562,10 +584,14 @@ def emergency_alert_endpoint():  # Renamed to avoid conflict
 @app.route("/emergency-alerts", methods=["GET"])
 def get_emergency_alerts():
     try:
-        alerts = list(emergency_alert.find({}, {"_id": 0}))
+        # Fetch the 5 most recent alerts, sorted by timestamp in descending order
+        alerts = list(
+            emergency_alert.find({}, {"_id": 0}).sort("timestamp", -1).limit(5)
+        )
         return dumps(alerts)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 # Run the Flask app
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=5000)

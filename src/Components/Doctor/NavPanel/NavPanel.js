@@ -4,7 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Account from './Account';
 import axios from 'axios';
-
+import config from '../../../utils/config';
 const NavPanel = () => {
   const [doctor, setDoctor] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -30,14 +30,14 @@ const NavPanel = () => {
   // Function to update doctor status in backend
   const updateDoctorStatus = async (doctorEmail, status) => {
     try {
-      await axios.post("http://10.42.0.1:5000/update_status", {
+      await axios.post(`${config.API_BASE_URL}/update_status`, {
         doctor_email: doctorEmail,
         status: status,
       });
-      toast.success("Status updated successfully!");
+      // toast.success("Status updated successfully!");
     } catch (error) {
       console.error("Error updating status:", error);
-      toast.error("Failed to update status.");
+      // toast.error("Failed to update status.");
     }
   };
 

@@ -3,6 +3,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";  // Import axios for API calls
 import "react-toastify/dist/ReactToastify.css";
 import Navigation from "../../Components/Navigation/Navigation";
+import config from "../../utils/config";
 
 const Appointment = () => {
   const [user, setUser] = useState(null);
@@ -31,24 +32,24 @@ const Appointment = () => {
   // Fetch available doctors from Flask backend
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get("http://10.42.0.1:5000/api/doctors");
+      const res = await axios.get(`${config.API_BASE_URL}/api/doctors`);
       setDoctors(res.data);
     } catch (error) {
       console.error("Error fetching doctors:", error);
-      toast.error("Failed to load doctors.");
+      //toast.error("Failed to load doctors.");
     }
   };
 
   // Fetch past appointments from Flask backend
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get("http://10.42.0.1:5000/api/getappointments", {
+      const res = await axios.get(`${config.API_BASE_URL}/api/getappointments`, {
         params: { from: user.email },  // Send user.email as a query parameter
       });
       setPastAppointments(res.data);
     } catch (error) {
       console.error("Error fetching appointments:", error);
-      toast.error("Failed to load appointments.");
+      //toast.error("Failed to load appointments.");
     }
   };
   
@@ -71,7 +72,7 @@ const Appointment = () => {
     };
 
     try {
-      const res = await axios.post("http://10.42.0.1:5000/api/appointments", newAppointment);
+      const res = await axios.post(`${config.API_BASE_URL}/api/appointments`, newAppointment);
       toast.success(res.data.message);
       fetchAppointments(); // Refresh past appointments after booking
       setSelectedDoctor("");
@@ -80,7 +81,7 @@ const Appointment = () => {
       setReason("");
     } catch (error) {
       console.error("Error booking appointment:", error);
-      toast.error("Failed to book appointment.");
+      toast.error("Failed to book appointment. Please try again");
     }
   };
 

@@ -3,8 +3,9 @@ import io from "socket.io-client";
 import { FaArrowLeft } from "react-icons/fa"; // Import back arrow icon
 import Navigation from "../../Components/Navigation/Navigation";
 import theme from "../../utils/theme";
+import config from "../../utils/config";
 
-const socket = io("http://10.42.0.1:5000");
+const socket = io(`${config.API_BASE_URL}`);
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -29,7 +30,7 @@ const Chat = () => {
       console.log("Connected to socket and joined room", currentUser.email);
     }
 
-    fetch("http://10.42.0.1:5000/messages")
+    fetch(`${config.API_BASE_URL}/messages`)
       .then((res) => res.json())
       .then((data) => {
         setMessages(data);
@@ -48,7 +49,7 @@ const Chat = () => {
         setDoctors(Object.values(doctorMessages));
       });
 
-    fetch("http://10.42.0.1:5000/api/doctors")
+    fetch(`${config.API_BASE_URL}/api/doctors`)
       .then((res) => res.json())
       .then((data) => setAvailableDoctors(data));
 
@@ -77,7 +78,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (selectedDoctor) {
-      fetch("http://10.42.0.1:5000/messages/seen", {
+      fetch(`${config.API_BASE_URL}/messages/seen`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sender: selectedDoctor, receiver: user.email }),

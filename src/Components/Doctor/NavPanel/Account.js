@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"; 
+import config from '../../../utils/config';
 
 const Account = ({ show, onClose }) => {
   const navigate = useNavigate();
@@ -23,18 +24,18 @@ const Account = ({ show, onClose }) => {
           return;
         }
     
-        const res = await axios.get("http://10.42.0.1:5000/api/getuserdata", {
+        const res = await axios.get(`${config.API_BASE_URL}/api/getuserdata`, {
           params: { email: currentUser.email }, // Send user email as a parameter
         });
     
         if (res.data) {
           // Store fetched user data in localStorage
           localStorage.setItem("user", JSON.stringify(res.data));
-          toast.success("User data loaded successfully!");
+          //toast.success("User data loaded successfully!");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
-        toast.error("Failed to load user data.");
+        //toast.error("Failed to load user data.");
       }
     };
 

@@ -4,6 +4,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DoctorSignupModal from "./DoctorSignupModal";  // Import the doctor signup modal
 import './Signup.css'
+import config from '../../utils/config';
+
 const Signup = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -15,7 +17,7 @@ const Signup = () => {
 
   const [showDoctorSignup, setShowDoctorSignup] = useState(false);
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL || "http://10.42.0.1:5000";
+  const API_URL = process.env.REACT_APP_API_URL || `${config.API_BASE_URL}`;
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));

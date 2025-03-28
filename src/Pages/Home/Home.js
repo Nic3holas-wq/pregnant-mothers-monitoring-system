@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navigation from "../../Components/Navigation/Navigation";
 import axios from "axios";  
+import config from "../../utils/config";
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -46,13 +47,13 @@ const Home = () => {
   // Fetch upcoming appointments from Flask backend
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get("http://10.42.0.1:5000/api/getappointments", {
+      const res = await axios.get(`${config.API_BASE_URL}/api/getappointments`, {
         params: { from: user.email },
       });
       setAppointments(res.data);
     } catch (error) {
       console.error("Error fetching appointments:", error);
-      toast.error("Failed to load appointments.");
+      //toast.error("Failed to load appointments.");
     }
   };
 
@@ -61,7 +62,7 @@ const Home = () => {
     if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
 
     try {
-      await axios.delete(`http://10.42.0.1:5000/api/deleteappointment/${appointmentReason}`);
+      await axios.delete(`${config.API_BASE_URL}/api/deleteappointment/${appointmentReason}`);
       
       // Remove the deleted appointment from state
       setAppointments(appointments.filter((appt) => appt._id !== appointmentReason));
@@ -82,7 +83,7 @@ const Home = () => {
         return;
       }
   
-      const response = await fetch("http://10.42.0.1:5000/emergency-alert", {
+      const response = await fetch(`${config.API_BASE_URL}/emergency-alert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: currentUser.email, timestamp: new Date() }),
@@ -90,15 +91,13 @@ const Home = () => {
   
       const data = await response.json();
       if (response.ok) {
-        alert("Emergency alert sent successfully!");
         toast.success("Emergency alert sent successfully!");
       } else {
-        alert(`Error: ${data.error}`);
         toast.error("Failed to send emergency alert. Please try again")
       }
     } catch (error) {
       console.error("Error sending emergency alert:", error);
-      alert("Failed to send emergency alert.");
+      //alert("Failed to send emergency alert.");
     }
   };
   

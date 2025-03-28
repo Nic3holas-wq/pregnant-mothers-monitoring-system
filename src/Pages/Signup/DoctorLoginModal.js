@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import config from '../../utils/config';
 
 const DoctorLoginModal = ({ show, onClose }) => {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ const DoctorLoginModal = ({ show, onClose }) => {
     password: ''
   });
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://10.42.0.1:5000";
+  const API_URL = process.env.REACT_APP_API_URL || `${config.API_BASE_URL}`;
 
   const handleChange = (e) => {
     const { name, value } = e.target;

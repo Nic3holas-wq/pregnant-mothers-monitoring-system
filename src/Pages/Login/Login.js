@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import theme from "../../utils/theme";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import config from "../../utils/config";
 
 const Login = () => {
-  const API_URL = process.env.REACT_APP_API_URL || "http://10.42.0.1:5000";
+  const API_URL = process.env.REACT_APP_API_URL || `${config.API_BASE_URL}`;
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { toast } from "react-toastify";
 import DoctorLoginModal from './DoctorLoginModal';  // Import the login modal
 import './Signup.css';
+import config from '../../utils/config';
 
 const DoctorSignupModal = ({ show, onClose }) => {
   const [doctorData, setDoctorData] = useState({
@@ -16,7 +17,7 @@ const DoctorSignupModal = ({ show, onClose }) => {
 
   const [showLoginModal, setShowLoginModal] = useState(false); // State to show login modal
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://10.42.0.1:5000";
+  const API_URL = process.env.REACT_APP_API_URL || `${config.API_BASE_URL}`;
 
   const handleChange = (e) => {
     const { name, value } = e.target;

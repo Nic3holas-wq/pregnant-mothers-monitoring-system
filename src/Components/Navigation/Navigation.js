@@ -6,7 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios"; 
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import config from '../../utils/config';
 const Navigation = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const Navigation = () => {
         }
     
         const response = await fetch(
-          `http://10.42.0.1:5000/messages/unread?email=${encodeURIComponent(currentUser.email)}`
+          `${config.API_BASE_URL}/messages/unread?email=${encodeURIComponent(currentUser.email)}`
         );
         const data = await response.json();
     
@@ -58,17 +58,17 @@ const Navigation = () => {
         return;
       }
   
-      const res = await axios.get("http://10.42.0.1:5000/api/getuserdata", {
+      const res = await axios.get(`${config.API_BASE_URL}/api/getuserdata`, {
         params: { email: currentUser.email },
       });
   
       if (res.data) {
         localStorage.setItem("user", JSON.stringify(res.data));
-        toast.success("User data loaded successfully!");
+        //toast.success("User data loaded successfully!");
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
-      toast.error("Failed to load user data.");
+      //toast.error("Failed to load user data.");
     }
   };
 

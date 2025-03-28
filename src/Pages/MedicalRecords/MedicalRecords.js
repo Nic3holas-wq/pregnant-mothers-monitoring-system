@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navigation from "../../Components/Navigation/Navigation";
+import config from "../../utils/config";
 
 const MedicalRecords = () => {
   const [user, setUser] = useState(null);
@@ -26,7 +27,7 @@ const MedicalRecords = () => {
   // Function to fetch medical records
   const fetchMedicalRecords = async () => {
     try {
-      const res = await axios.get("http://10.42.0.1:5000/api/getmedicalrecords", {
+      const res = await axios.get(`${config.API_BASE_URL}/api/getmedicalrecords`, {
         params: { email: user.email },  // Send user email as a query parameter
       });
       setRecords(res.data);

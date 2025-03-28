@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import NavPanel from "../../../Components/Doctor/NavPanel/NavPanel";
 import io from "socket.io-client";
+import config from "../../../utils/config";
+import { toast } from "react-toastify";
 
 // Backend server URL
-const socket = io("http://10.42.0.1:5000", {
+const socket = io(`${config.API_BASE_URL}`, {
   autoConnect: false, // Connect only when user is set
 });
 
@@ -45,7 +47,7 @@ const Messages = () => {
   useEffect(() => {
     if (!user) return;
 
-    fetch("http://10.42.0.1:5000/messages")
+    fetch(`${config.API_BASE_URL}/messages`)
       .then((res) => res.json())
       .then((data) => {
         setMessages(data);
@@ -66,7 +68,7 @@ const Messages = () => {
     // Listen for real-time messages
     socket.on("message", (msg) => {
       console.log("New message received:", msg); // Debugging log
-
+      toast.success("New message received!")
       // Update the messages state immutably
       setMessages((prev) => [...prev, msg]);
 
@@ -98,7 +100,7 @@ const Messages = () => {
   // Mark messages as seen when selecting a mother
   useEffect(() => {
     if (selectedMother && user) {
-      fetch("http://10.42.0.1:5000/messages/seen", {
+      fetch(`${config.API_BASE_URL}/messages/seen`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sender: selectedMother, receiver: user.email }),

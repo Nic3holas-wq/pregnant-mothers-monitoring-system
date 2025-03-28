@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import NavPanel from "../../../Components/Doctor/NavPanel/NavPanel";
 import { toast, ToastContainer } from "react-toastify";
+import config from "../../../utils/config";
 
 const PatientsAppointment = () => {
   const [appointments, setAppointments] = useState([]);
@@ -15,7 +16,7 @@ const PatientsAppointment = () => {
       setDoctor(parsedDoctor);
 
       axios
-        .get(`http://10.42.0.1:5000/api/getdocappointments?doctor=${parsedDoctor.email}`)
+        .get(`${config.API_BASE_URL}/api/getdocappointments?doctor=${parsedDoctor.email}`)
         .then((response) => {
           setAppointments(response.data);
         })
@@ -29,7 +30,7 @@ const PatientsAppointment = () => {
   // Function to update the status of an appointment
   const updateStatus = (id, newStatus) => {
     axios
-      .post("http://10.42.0.1:5000/api/updateappointment", { id: id, status: newStatus }) // Send "id" instead of "_id"
+      .post(`${config.API_BASE_URL}/api/updateappointment`, { id: id, status: newStatus }) // Send "id" instead of "_id"
       .then(() => {
         setAppointments((prevAppointments) =>
           prevAppointments.map((app) =>
@@ -40,7 +41,7 @@ const PatientsAppointment = () => {
       })
       .catch((error) => {
         console.error("Error updating status:", error);
-        toast.error("Failed to update appointment status");
+        toast.error("Failed to update appointment status. Please try again.");
       });
 };
 

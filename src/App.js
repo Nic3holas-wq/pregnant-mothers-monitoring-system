@@ -15,6 +15,7 @@ import Alerts from "./Pages/Doctor/Alerts/Alerts";
 import Messages from "./Pages/Doctor/Messages/Messages";
 import PatientsAppointment from "./Pages/Doctor/PatientsAppointment/PatientsAppointment";
 import MedicalRecords from "./Pages/MedicalRecords/MedicalRecords";
+import Footer from "./Components/Footer/Footer";
 function App() {
   return (
     <div className="App">
@@ -36,7 +37,7 @@ function App() {
       </Routes>
     </Router>
       
-      
+      <Footer/>
     </div>
   );
 }

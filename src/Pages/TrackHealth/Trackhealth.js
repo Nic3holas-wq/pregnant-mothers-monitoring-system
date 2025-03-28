@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navigation from "../../Components/Navigation/Navigation";
+import config from "../../utils/config";
 
 const TrackHealth = () => {
   const [healthMetrics, setHealthMetrics] = useState(null);
@@ -8,6 +9,7 @@ const TrackHealth = () => {
   const [loggedSymptoms, setLoggedSymptoms] = useState([]);
   const [analysisResult, setAnalysisResult] = useState("");
   const [user, setUser] = useState(null);
+  const [healthStatus, setHealthStatus] = useState(null);
 
   const [formData, setFormData] = useState({
     bloodPressure: "",
@@ -29,7 +31,7 @@ const TrackHealth = () => {
   // Fetch health metrics
   const fetchUserHealthMetrics = async (email) => {
     try {
-      const response = await fetch(`http://10.42.0.1:5000/api/health-metrics?email=${email}`);
+      const response = await fetch(`${config.API_BASE_URL}/api/health-metrics?email=${email}`);
       if (!response.ok) throw new Error("Failed to fetch health metrics");
 
       const data = await response.json();
@@ -64,7 +66,7 @@ const TrackHealth = () => {
     setFormData((prevFormData) => {
       console.log("Final Form Data Before Sending:", prevFormData);
       
-      fetch("http://10.42.0.1:5000/api/health-metrics", {
+      fetch(`${config.API_BASE_URL}/api/health-metrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: user.email, ...prevFormData }),
@@ -131,6 +133,39 @@ const TrackHealth = () => {
     
   };
 
+  const checkHealthStatus = async () => {
+    try {
+      const response = await fetch(`${config.API_BASE_URL}/health-status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(healthMetrics),
+      });
+
+      const data = await response.json();
+      setHealthStatus(data.status);
+    } catch (error) {
+      console.error("Error checking health status:", error);
+    }
+  };
+
+  const fetchHealthStatus = async () => {
+    if (!user || !user.email) {
+      alert("User not found. Please log in.");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${config.API_BASE_URL}/health-status?email=${user.email}`);
+      if (!response.ok) throw new Error("Failed to fetch health status");
+  
+      const data = await response.json();
+      setHealthStatus(data.status);
+    } catch (error) {
+      console.error("Error fetching health status:", error);
+      //alert("Failed to fetch health status. Try again.");
+    }
+  };
+
   return (
     <>
       <Navigation />
@@ -183,6 +218,30 @@ const TrackHealth = () => {
   ) : (
     <p className="text-muted mt-2">Loading health metrics...</p>
   )}
+  <button onClick={checkHealthStatus} className="btn btn-info mt-3">Check Health Status</button>
+  {healthStatus && (
+  <div className="mt-3">
+    <h4 
+      className={
+        healthStatus === "Best" ? "text-success" :
+        healthStatus === "Good" ? "text-warning" :
+        "text-danger"
+      }
+    >
+      Health Status
+    </h4>
+    <span 
+      className={`badge  p-2 fs-3 ${
+        healthStatus === "Best" ? "bg-success" :
+        healthStatus === "Good" ? "bg-warning" :
+        "bg-danger"
+      }`}
+    >
+      {healthStatus}
+    </span>
+  </div>
+)}
+
 </div>
 
 

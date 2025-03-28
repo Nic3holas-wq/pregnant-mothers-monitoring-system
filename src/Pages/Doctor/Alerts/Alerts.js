@@ -38,7 +38,7 @@ const Alerts = () => {
     <div>
       <NavPanel />
       <div className="container mt-5 pt-4">
-        <h2 className="text-center my-3">🔔 Alerts & Notifications</h2>
+        <h2 className="text-center my-3">Alerts & Notifications</h2>
 
         {alerts.length === 0 ? (
           <p className="text-center text-muted">No new alerts.</p>
